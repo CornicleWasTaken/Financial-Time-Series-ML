@@ -1,0 +1,3 @@
+# Model registry entries
+# Phase 5+ will populate this list as baseline / XGBoost / LSTM models land.
+models: []

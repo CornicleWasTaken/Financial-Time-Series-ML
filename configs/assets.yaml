@@ -1,0 +1,15 @@
+# Asset universe
+# Phase 1 will use this list to drive ingestion. Symbols are illustrative.
+assets:
+  - symbol: "AAPL"
+    name: "Apple Inc."
+    source: "yfinance"
+    enabled: true
+  - symbol: "MSFT"
+    name: "Microsoft Corporation"
+    source: "yfinance"
+    enabled: true
+  - symbol: "SPY"
+    name: "SPDR S&P 500 ETF Trust"
+    source: "yfinance"
+    enabled: true

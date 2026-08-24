@@ -1,0 +1,135 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "financial-ml"
+version = "0.0.0"
+description = "Production-style financial time-series ML platform (educational engineering project)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Financial Time-Series ML" }]
+keywords = ["machine-learning", "finance", "time-series", "mlops", "education"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    # Data
+    "pandas>=2.2,<3",
+    "numpy>=1.26,<3",
+    # Validation / config
+    "pydantic>=2.6,<3",
+    "pydantic-settings>=2.2,<3",
+    "PyYAML>=6.0,<7",
+    # Classical ML
+    "scikit-learn>=1.4,<2",
+    "xgboost>=2.0,<3",
+    # API (used by later phases, but lightweight to include now)
+    "fastapi>=0.110,<1",
+    "uvicorn[standard]>=0.27,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0,<9",
+    "pytest-cov>=5.0,<6",
+    "ruff>=0.5,<1",
+]
+tracking = [
+    # MLflow + pyarrow are Phase 6 concerns (XGBoost + tracking). They are
+    # kept out of the default install because:
+    #   * MLflow pins an older pyarrow that does not yet have wheels for the
+    #     newest Python versions on some platforms.
+    #   * The skeleton does not import MLflow.
+    # Install with: `pip install -e ".[tracking]"` when Phase 6 lands.
+    "mlflow>=2.13,<3",
+    "pyarrow>=15,<20",
+]
+deep = [
+    # Optional deep-learning extras; kept in an extra so the base install is small.
+    # NOTE: torch wheels for the newest Python versions can lag; pin loosely.
+    "torch>=2.2,<3",
+]
+notebook = [
+    "jupyter>=1.0,<2",
+    "matplotlib>=3.8,<4",
+    "seaborn>=0.13,<1",
+]
+
+[project.urls]
+Roadmap = "Docs/financial_time_series_ml_system_roadmap.docx"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"financial_ml" = ["py.typed"]
+
+# ---------------------------------------------------------------------------
+# Ruff: lint + format
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# Default-ish set, tightened slightly.
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line length is handled by the formatter
+    "B008",  # function-call-in-default-argument — common in FastAPI Depends()
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["B011"]  # asserts in tests are fine
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--tb=short",
+]
+markers = [
+    "unit: fast unit tests (no network, no DB)",
+    "integration: tests that hit network or external services",
+]
+filterwarnings = [
+    "error",
+    # pydantic-settings uses __modify_schema__ deprecation warnings internally
+    "ignore::DeprecationWarning:pydantic.*",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src/financial_ml"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
