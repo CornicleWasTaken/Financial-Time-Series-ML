@@ -50,5 +50,6 @@ mlruns/
 
 # --- Claude local settings ---
 .claude/
+CLAUDE.md
 
 # --- Roadmap document is tracked; do NOT exclude Docs/ ---
