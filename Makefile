@@ -48,7 +48,10 @@ test-one: ## Run a single test, e.g. `make test-one TEST=tests/unit/test_smoke.p
 	$(PYTEST) $(TEST)
 
 ingest: ## Refresh raw data for an asset (Phase 1). Usage: make ingest ASSET=AAPL
-	@echo "TODO: Phase 1 — implement ingestion for $(ASSET)" && exit 1
+	$(PYTHON) -m financial_ml.data.ingestion --asset $(ASSET)
+
+ingest-all: ## Refresh raw data for ALL enabled assets.
+	$(PYTHON) -m financial_ml.data.ingestion --all
 
 features: ## Rebuild features from validated raw data (Phase 3).
 	@echo "TODO: Phase 3 — implement feature pipeline" && exit 1
