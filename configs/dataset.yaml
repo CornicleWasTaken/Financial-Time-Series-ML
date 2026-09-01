@@ -1,0 +1,75 @@
+# Dataset builder configuration for Phase 3
+# Defines target variable construction, walk-forward split parameters, and scaling strategy
+
+dataset:
+  # Target variable definition: next-period return (next day's price change)
+  target:
+    name: "next_return"
+    description: "Next-period simple return (P[t+1] - P[t]) / P[t]"
+    method: "simple"
+    horizon: 1  # Predict next period's return
+
+  # Walk-forward split configuration
+  splits:
+    # Expanding window strategy: train on cumulative history, validate/test on forward windows
+    train_window: 100  # Minimum training samples per fold
+    test_window: 20    # Number of samples for validation set
+    gap: 0             # Gap between validation and test (0 = consecutive)
+    horizon: 1         # Prediction horizon (matches target definition)
+    step: 1            # Forward step for next fold
+    initial_train_days: 252  # Minimum initial training days before first validation
+
+  # Feature scaling configuration (must fit per-fold, never on full dataset)
+  scaling:
+    type: "standard"  # "standard" for StandardScaler, "minmax" for MinMaxScaler
+    features_to_scale:
+      # Features that should be scaled - all numeric features except timestamps and IDs
+      - "return_lag_1"
+      - "return_lag_5"
+      - "log_return"
+      - "sma_10"
+      - "sma_20"
+      - "sma_50"
+      - "ema_12"
+      - "ema_26"
+      - "price_sma_ratio_10"
+      - "price_ema_ratio_12"
+      - "rsi_14"
+      - "macd"
+      - "volatility_10"
+      - "volatility_30"
+      - "log_volume"
+      - "volume_sma_10"
+      - "volume_price_trend"
+    # Calendar features are not scaled (categorical)
+    exclude_features:
+      - "day_of_week"
+      - "month"
+      - "quarter"
+      - "is_month_start"
+      - "is_month_end"
+      - "timestamp"
+
+  # Dataset output configuration
+  output:
+    directory: "data/dataset/"
+    train_prefix: "train"
+    val_prefix: "val"
+    test_prefix: "test"
+    metadata_file: "dataset_metadata.json"
+    file_format: "parquet"  # Can also be "csv"
+
+  # Metadata and reproducibility
+  metadata:
+    include_feature_schema: true
+    include_split_dates: true
+    include_scaler_params: true
+    include_target_definition: true
+    hash_configuration: true  # Hash config for version control
+
+  # Data quality checks
+  validation:
+    min_train_samples: 50
+    max_test_samples: 100
+    require_consecutive_timestamps: true
+    forbid_future_leakage: true

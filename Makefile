@@ -53,8 +53,11 @@ ingest: ## Refresh raw data for an asset (Phase 1). Usage: make ingest ASSET=AAP
 ingest-all: ## Refresh raw data for ALL enabled assets.
 	$(PYTHON) -m financial_ml.data.ingestion --all
 
-features: ## Rebuild features from validated raw data (Phase 3).
-	@echo "TODO: Phase 3 — implement feature pipeline" && exit 1
+features: ## Rebuild features from validated raw data (Phase 2).
+	$(PYTHON) -m financial_ml.features.pipeline
+
+dataset: ## Build dataset with walk-forward splits (Phase 3).
+	$(PYTHON) -m financial_ml.datasets.builder
 
 train: ## Run a tracked training run (Phase 6+). Usage: make train MODEL=xgboost
 	@echo "TODO: Phase 6 — implement training entrypoint for $(MODEL)" && exit 1

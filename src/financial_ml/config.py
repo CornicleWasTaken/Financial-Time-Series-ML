@@ -106,6 +106,7 @@ class FeatureConfig(_YamlModel):
 
     name: str
     enabled: bool = True
+    params: dict = Field(default_factory=dict)
 
 
 class FeaturesFile(_YamlModel):
@@ -128,6 +129,86 @@ class ModelsFile(_YamlModel):
 
 
 # ---------------------------------------------------------------------------
+# Dataset configuration (Phase 3)
+# ---------------------------------------------------------------------------
+
+
+class TargetConfig(_YamlModel):
+    """Target variable definition."""
+
+    name: str = "next_return"
+    description: str = "Next-period simple return"
+    method: Literal["simple", "log"] = "simple"
+    horizon: int = 1
+
+
+class SplitsConfig(_YamlModel):
+    """Walk-forward split parameters."""
+
+    train_window: int = 100
+    test_window: int = 20
+    gap: int = 0
+    horizon: int = 1
+    step: int = 1
+    initial_train_days: int = 252
+
+
+class ScalingConfig(_YamlModel):
+    """Feature scaling configuration."""
+
+    type: Literal["standard", "minmax"] = "standard"
+    features_to_scale: list[str] = Field(default_factory=list)
+    exclude_features: list[str] = Field(default_factory=list)
+
+
+class OutputConfig(_YamlModel):
+    """Dataset output configuration."""
+
+    directory: str = "data/dataset/"
+    train_prefix: str = "train"
+    val_prefix: str = "val"
+    test_prefix: str = "test"
+    metadata_file: str = "dataset_metadata.json"
+    file_format: Literal["parquet", "csv"] = "parquet"
+
+
+class MetadataConfig(_YamlModel):
+    """Metadata persistence configuration."""
+
+    include_feature_schema: bool = True
+    include_split_dates: bool = True
+    include_scaler_params: bool = True
+    include_target_definition: bool = True
+    hash_configuration: bool = True
+
+
+class ValidationConfig(_YamlModel):
+    """Data quality validation configuration."""
+
+    min_train_samples: int = 50
+    max_test_samples: int = 100
+    require_consecutive_timestamps: bool = True
+    forbid_future_leakage: bool = True
+
+
+class DatasetConfig(_YamlModel):
+    """Schema for a single dataset configuration section."""
+
+    target: TargetConfig = Field(default_factory=TargetConfig)
+    splits: SplitsConfig = Field(default_factory=SplitsConfig)
+    scaling: ScalingConfig = Field(default_factory=ScalingConfig)
+    output: OutputConfig = Field(default_factory=OutputConfig)
+    metadata: MetadataConfig = Field(default_factory=MetadataConfig)
+    validation: ValidationConfig = Field(default_factory=ValidationConfig)
+
+
+class DatasetsFile(_YamlModel):
+    """Schema for ``configs/dataset.yaml``."""
+
+    dataset: DatasetConfig = Field(default_factory=DatasetConfig)
+
+
+# ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
@@ -139,6 +220,7 @@ class AppConfig(BaseModel):
     assets: AssetsFile
     features: FeaturesFile
     models: ModelsFile
+    dataset: DatasetsFile
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -154,7 +236,8 @@ def load_config() -> AppConfig:
     assets = _load_yaml(CONFIG_DIR / "assets.yaml", AssetsFile)
     features = _load_yaml(CONFIG_DIR / "features.yaml", FeaturesFile)
     models = _load_yaml(CONFIG_DIR / "models.yaml", ModelsFile)
-    return AppConfig(env=env, assets=assets, features=features, models=models)
+    dataset = _load_yaml(CONFIG_DIR / "dataset.yaml", DatasetsFile)
+    return AppConfig(env=env, assets=assets, features=features, models=models, dataset=dataset)
 
 
 def _load_yaml(path: Path, model: type[_YamlModel]) -> _YamlModel:

@@ -1,3 +1,121 @@
 # Feature engineering toggles
-# Phase 3 will populate this list with concrete feature definitions.
-features: []
+# Phase 2 defines concrete feature groups and parameters.
+# Enable/disable features by setting `enabled: true` or `enabled: false`.
+# Parameters control window sizes, periods, etc.
+
+features:
+  # ---- Returns & lags ----
+  - name: "return_lag_1"
+    enabled: true
+    params:
+      lag: 1
+      method: "simple"
+
+  - name: "return_lag_5"
+    enabled: true
+    params:
+      lag: 5
+      method: "simple"
+
+  - name: "log_return"
+    enabled: true
+    params:
+      method: "log"
+
+  # ---- Simple moving averages ----
+  - name: "sma_10"
+    enabled: true
+    params:
+      window: 10
+
+  - name: "sma_20"
+    enabled: true
+    params:
+      window: 20
+
+  - name: "sma_50"
+    enabled: true
+    params:
+      window: 50
+
+  # ---- Exponential moving averages ----
+  - name: "ema_12"
+    enabled: true
+    params:
+      span: 12
+
+  - name: "ema_26"
+    enabled: true
+    params:
+      span: 26
+
+  # ---- Price-to-MA ratios ----
+  - name: "price_sma_ratio_10"
+    enabled: true
+    params:
+      window: 10
+
+  - name: "price_ema_ratio_12"
+    enabled: true
+    params:
+      span: 12
+
+  # ---- RSI ----
+  - name: "rsi_14"
+    enabled: true
+    params:
+      period: 14
+
+  # ---- MACD ----
+  - name: "macd"
+    enabled: true
+    params:
+      fast: 12
+      slow: 26
+      signal: 9
+
+  # ---- Volatility ----
+  - name: "volatility_10"
+    enabled: true
+    params:
+      window: 10
+
+  - name: "volatility_30"
+    enabled: true
+    params:
+      window: 30
+
+  # ---- Volume features ----
+  - name: "log_volume"
+    enabled: true
+    params: {}
+
+  - name: "volume_sma_10"
+    enabled: true
+    params:
+      window: 10
+
+  - name: "volume_price_trend"
+    enabled: true
+    params: {}
+
+  # ---- Calendar features ----
+  - name: "day_of_week"
+    enabled: true
+    params: {}
+
+  - name: "month"
+    enabled: true
+    params: {}
+
+  - name: "quarter"
+    enabled: true
+    params: {}
+
+  - name: "is_month_start"
+    enabled: true
+    params: {}
+
+  - name: "is_month_end"
+    enabled: true
+    params: {}
